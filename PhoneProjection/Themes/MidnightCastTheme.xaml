@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Midnight Cast Color System -->
+    <!-- Base Canvas / Surfaces -->
+    <Color x:Key="ColorAppBackground">#0B1020</Color>      <!-- Midnight Navy -->
+    <Color x:Key="ColorSecondaryBackground">#0E1527</Color> <!-- Deep Navy -->
+    <Color x:Key="ColorSurface">#121A2B</Color>             <!-- Dark Slate -->
+    <Color x:Key="ColorElevatedSurface">#19243A</Color>     <!-- Slate Blue -->
+    <Color x:Key="ColorBorder">#26334B</Color>              <!-- Muted Blue-Gray -->
+    <Color x:Key="ColorBorderSubtle">#1A2538</Color>
+
+    <!-- Brand / Accents -->
+    <Color x:Key="ColorPrimary">#2563EB</Color>             <!-- Electric Blue -->
+    <Color x:Key="ColorPrimaryHover">#3B82F6</Color>        <!-- Brighter Blue -->
+    <Color x:Key="ColorPrimaryPressed">#1D4ED8</Color>
+    <Color x:Key="ColorSignalAccent">#22D3EE</Color>        <!-- Cyan -->
+    <Color x:Key="ColorSignalAccentGlow">#3322D3EE</Color>
+
+    <!-- Typography -->
+    <Color x:Key="ColorPrimaryText">#F1F5F9</Color>         <!-- Off White -->
+    <Color x:Key="ColorSecondaryText">#94A3B8</Color>       <!-- Cool Gray -->
+    <Color x:Key="ColorMutedText">#64748B</Color>
+
+    <!-- Semantic Feedback -->
+    <Color x:Key="ColorSuccess">#22C55E</Color>             <!-- Emerald -->
+    <Color x:Key="ColorWarning">#F59E0B</Color>             <!-- Amber -->
+    <Color x:Key="ColorError">#EF4444</Color>               <!-- Soft Red -->
+
+    <!-- Solid Color Brushes -->
+    <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource ColorAppBackground}"/>
+    <SolidColorBrush x:Key="SecondaryBackgroundBrush" Color="{StaticResource ColorSecondaryBackground}"/>
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource ColorSurface}"/>
+    <SolidColorBrush x:Key="ElevatedSurfaceBrush" Color="{StaticResource ColorElevatedSurface}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource ColorBorder}"/>
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource ColorBorderSubtle}"/>
+
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource ColorPrimary}"/>
+    <SolidColorBrush x:Key="PrimaryHoverBrush" Color="{StaticResource ColorPrimaryHover}"/>
+    <SolidColorBrush x:Key="PrimaryPressedBrush" Color="{StaticResource ColorPrimaryPressed}"/>
+    <SolidColorBrush x:Key="SignalAccentBrush" Color="{StaticResource ColorSignalAccent}"/>
+
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource ColorPrimaryText}"/>
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource ColorSecondaryText}"/>
+    <SolidColorBrush x:Key="MutedTextBrush" Color="{StaticResource ColorMutedText}"/>
+
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource ColorSuccess}"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource ColorWarning}"/>
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ColorError}"/>
+
+    <!-- Gradients -->
+    <LinearGradientBrush x:Key="CardGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#141D30" Offset="0"/>
+        <GradientStop Color="#0F1726" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="SignalFlowGradient" StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Color="#0022D3EE" Offset="0"/>
+        <GradientStop Color="#9922D3EE" Offset="0.5"/>
+        <GradientStop Color="#0022D3EE" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Corner Radii -->
+    <CornerRadius x:Key="RadiusSmall">6</CornerRadius>
+    <CornerRadius x:Key="RadiusMedium">10</CornerRadius>
+    <CornerRadius x:Key="RadiusLarge">14</CornerRadius>
+
+    <!-- Animation Durations -->
+    <Duration x:Key="DurationFast">0:0:0.150</Duration>
+    <Duration x:Key="DurationNormal">0:0:0.250</Duration>
+    <Duration x:Key="DurationSlow">0:0:0.400</Duration>
+
+</ResourceDictionary>

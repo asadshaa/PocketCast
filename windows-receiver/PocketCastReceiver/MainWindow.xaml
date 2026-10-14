@@ -1,0 +1,207 @@
+<Window x:Class="PocketCastReceiver.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="PocketCast — Low-Latency Android Mirroring" Height="720" Width="1080"
+        Background="#0F172A" Foreground="#F8FAFC"
+        WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing">
+
+    <Window.Resources>
+        <!-- Modern Button Style -->
+        <Style x:Key="ModernBtn" TargetType="Button">
+            <Setter Property="Background" Value="#3B82F6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2563EB"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#334155"/>
+                    <Setter Property="Foreground" Value="#94A3B8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource ModernBtn}">
+            <Setter Property="Background" Value="#EF4444"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#DC2626"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ActionBtn" TargetType="Button" BasedOn="{StaticResource ModernBtn}">
+            <Setter Property="Background" Value="#10B981"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#059669"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- Header bar -->
+            <RowDefinition Height="Auto"/>
+            <!-- Main Content: Video Stream & Sidebar -->
+            <RowDefinition Height="*"/>
+            <!-- Status Footer -->
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- TOP BAR -->
+        <Border Grid.Row="0" Background="#1E293B" BorderBrush="#334155" BorderThickness="0,0,0,1" Padding="16,10">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="⚡ PocketCast" FontSize="18" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,12,0"/>
+                    <Border Background="#0F172A" CornerRadius="4" Padding="6,2" Margin="0,0,16,0">
+                        <TextBlock Text="v1.0" FontSize="11" Foreground="#94A3B8"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Connection Mode Selector -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                    <RadioButton x:Name="RadioUsb" Content="USB Mode (ADB)" Foreground="#F8FAFC" IsChecked="True" 
+                                 GroupName="Mode" Margin="0,0,14,0" Checked="RadioMode_Checked"/>
+                    <RadioButton x:Name="RadioWifi" Content="Wi-Fi (LAN)" Foreground="#F8FAFC" 
+                                 GroupName="Mode" Margin="0,0,16,0" Checked="RadioMode_Checked"/>
+                </StackPanel>
+
+                <!-- Port Settings -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                    <TextBlock Text="Port:" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="TxtPort" Text="8088" Width="55" Background="#0F172A" Foreground="#F8FAFC" 
+                             BorderBrush="#334155" Padding="4,2" HorizontalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Action Controls -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="BtnAutoSetupAdb" Content="Setup ADB Forward" Style="{StaticResource ModernBtn}" 
+                            Margin="0,0,8,0" Click="BtnAutoSetupAdb_Click"/>
+                    <Button x:Name="BtnStartServer" Content="Start Receiver" Style="{StaticResource ActionBtn}" 
+                            Margin="0,0,8,0" Click="BtnStartServer_Click"/>
+                    <Button x:Name="BtnStopServer" Content="Stop" Style="{StaticResource DangerBtn}" 
+                            IsEnabled="False" Click="BtnStopServer_Click"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- MAIN AREA -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <!-- Video Display Area -->
+                <ColumnDefinition Width="*"/>
+                <!-- Collapsible Sidebar / Metrics -->
+                <ColumnDefinition Width="280"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Video Viewport -->
+            <Border Grid.Column="0" Background="#090D16" Margin="10" CornerRadius="8" ClipToBounds="True">
+                <Grid>
+                    <!-- Actual Video Image -->
+                    <Image x:Name="VideoView" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                    <!-- Placeholder overlay when no stream is active -->
+                    <Border x:Name="PlaceholderOverlay" Background="#0B132B" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="📱" FontSize="56" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                            <TextBlock Text="Waiting for PocketCast Stream" FontSize="18" FontWeight="SemiBold" 
+                                       Foreground="#E2E8F0" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="TxtInstructions" 
+                                       Text="1. Connect phone via USB with USB Debugging enabled&#x0a;2. Click 'Setup ADB Forward' &amp; 'Start Receiver'&#x0a;3. Launch PocketCast on Android and tap Connect" 
+                                       TextAlignment="Center" Foreground="#94A3B8" FontSize="13" LineHeight="20"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- SIDEBAR: Metrics & Controls -->
+            <Border Grid.Column="1" Background="#1E293B" BorderBrush="#334155" BorderThickness="1,0,0,0" Padding="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Realtime Statistics Card -->
+                    <Border Grid.Row="0" Background="#0F172A" CornerRadius="8" Padding="12" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="STREAM METRICS" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,8"/>
+
+                            <Grid Margin="0,2">
+                                <TextBlock Text="FPS:" Foreground="#94A3B8"/>
+                                <TextBlock x:Name="TxtMetricFps" Text="0.0" Foreground="#10B981" FontWeight="Bold" HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Grid Margin="0,2">
+                                <TextBlock Text="Bitrate:" Foreground="#94A3B8"/>
+                                <TextBlock x:Name="TxtMetricBitrate" Text="0.0 Mbps" Foreground="#F8FAFC" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Grid Margin="0,2">
+                                <TextBlock Text="Est. Latency:" Foreground="#94A3B8"/>
+                                <TextBlock x:Name="TxtMetricLatency" Text="-- ms" Foreground="#F59E0B" FontWeight="Bold" HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Grid Margin="0,2">
+                                <TextBlock Text="Resolution:" Foreground="#94A3B8"/>
+                                <TextBlock x:Name="TxtMetricResolution" Text="-- x --" Foreground="#F8FAFC" HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Grid Margin="0,2">
+                                <TextBlock Text="Frames Received:" Foreground="#94A3B8"/>
+                                <TextBlock x:Name="TxtMetricFrames" Text="0" Foreground="#F8FAFC" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Connection Info Card -->
+                    <Border Grid.Row="1" Background="#0F172A" CornerRadius="8" Padding="12" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="LOCAL NETWORK IP" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="TxtLocalIp" Text="127.0.0.1 (USB) / Detecting..." FontSize="13" Foreground="#F8FAFC" TextWrapping="Wrap"/>
+                            <TextBlock Text="For Wi-Fi: Enter this IP in the Android app" FontSize="11" Foreground="#64748B" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Live Log Terminal -->
+                    <DockPanel Grid.Row="2">
+                        <TextBlock DockPanel.Dock="Top" Text="LOGS &amp; DIAGNOSTICS" FontSize="11" FontWeight="Bold" Foreground="#94A3B8" Margin="0,0,0,6"/>
+                        <TextBox x:Name="TxtLogs" Background="#0A0E17" Foreground="#38BDF8" FontFamily="Consolas" FontSize="11"
+                                 BorderBrush="#334155" TextWrapping="Wrap" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
+                    </DockPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- STATUS FOOTER -->
+        <Border Grid.Row="2" Background="#0B132B" BorderBrush="#334155" BorderThickness="0,1,0,0" Padding="16,6">
+            <DockPanel LastChildFill="True">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <TextBlock Text="Decoder: " Foreground="#64748B" FontSize="12"/>
+                    <TextBlock Text="FFmpeg H.264 Low-Latency" Foreground="#94A3B8" FontSize="12"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse x:Name="StatusLed" Width="8" Height="8" Fill="#EF4444" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtStatus" Text="Receiver Stopped" Foreground="#94A3B8" FontSize="12" VerticalAlignment="Center"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
