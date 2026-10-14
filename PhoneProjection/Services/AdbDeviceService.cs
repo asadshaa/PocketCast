@@ -183,5 +183,35 @@ namespace PhoneProjection.Services
                 return (false, $"Error setting device to tcpip mode: {ex.Message}");
             }
         }
+
+        public async Task<bool> SetImmersiveFullDisplayAsync(string deviceSerial, bool enableImmersive, string? customAdbPath = null)
+        {
+            string? adbPath = _discovery.FindAdbPath(customAdbPath);
+            if (string.IsNullOrEmpty(adbPath) || !File.Exists(adbPath))
+                return false;
+
+            try
+            {
+                string value = enableImmersive ? "immersive.full=*" : "null";
+                using var process = new Process();
+                process.StartInfo = new ProcessStartInfo
+                {
+                    FileName = adbPath,
+                    Arguments = $"-s {deviceSerial} shell settings put global policy_control {value}",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                process.Start();
+                await process.WaitForExitAsync();
+                return process.ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

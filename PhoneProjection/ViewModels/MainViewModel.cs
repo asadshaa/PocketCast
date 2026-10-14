@@ -183,6 +183,54 @@ namespace PhoneProjection.ViewModels
             }
         }
 
+        private bool _alwaysOnTop;
+        public bool AlwaysOnTop
+        {
+            get => _alwaysOnTop;
+            set
+            {
+                if (_alwaysOnTop != value)
+                {
+                    _alwaysOnTop = value;
+                    _prefs.AlwaysOnTop = value;
+                    OnPropertyChanged();
+                    SavePreferences();
+                }
+            }
+        }
+
+        private bool _autoHideBars = true;
+        public bool AutoHideBars
+        {
+            get => _autoHideBars;
+            set
+            {
+                if (_autoHideBars != value)
+                {
+                    _autoHideBars = value;
+                    _prefs.AutoHideBars = value;
+                    OnPropertyChanged();
+                    SavePreferences();
+                }
+            }
+        }
+
+        private bool _reducedMotion;
+        public bool ReducedMotion
+        {
+            get => _reducedMotion;
+            set
+            {
+                if (_reducedMotion != value)
+                {
+                    _reducedMotion = value;
+                    _prefs.ReducedMotion = value;
+                    OnPropertyChanged();
+                    SavePreferences();
+                }
+            }
+        }
+
         private bool _stayAwake;
         public bool StayAwake
         {
@@ -408,6 +456,7 @@ namespace PhoneProjection.ViewModels
         public ICommand DisconnectWifiCommand { get; }
         public ICommand EnableUsbTcpIpCommand { get; }
         public ICommand ClearLogsCommand { get; }
+        public ICommand ExportDiagnosticsCommand { get; }
 
         public MainViewModel()
         {
@@ -431,6 +480,7 @@ namespace PhoneProjection.ViewModels
             DisconnectWifiCommand = new RelayCommand(async () => await DisconnectWifiAsync(), () => !IsBusy);
             EnableUsbTcpIpCommand = new RelayCommand(async () => await EnableUsbTcpIpAsync(), () => !IsBusy);
             ClearLogsCommand = new RelayCommand(() => LogOutput = string.Empty);
+            ExportDiagnosticsCommand = new RelayCommand(ExportDiagnostics);
 
             RefreshDiscoveryPaths();
             _ = RefreshDevicesAsync();
@@ -444,6 +494,9 @@ namespace PhoneProjection.ViewModels
             _videoBufferMs = _prefs.VideoBufferMs;
             _isFullscreen = _prefs.IsFullscreen;
             _isBorderless = _prefs.IsBorderless;
+            _alwaysOnTop = _prefs.AlwaysOnTop;
+            _autoHideBars = _prefs.AutoHideBars;
+            _reducedMotion = _prefs.ReducedMotion;
             _stayAwake = _prefs.StayAwake;
             _enableAudio = _prefs.EnableAudio;
             _selectedAudioSource = _prefs.AudioSource;
@@ -555,12 +608,18 @@ namespace PhoneProjection.ViewModels
                 VideoBufferMs = VideoBufferMs,
                 Fullscreen = IsFullscreen,
                 Borderless = IsBorderless,
+                AlwaysOnTop = AlwaysOnTop,
                 StayAwake = StayAwake,
                 EnableAudio = EnableAudio,
                 AudioSource = SelectedAudioSource,
                 CustomScrcpyPath = CustomScrcpyPath,
                 CustomAdbPath = CustomAdbPath
             };
+
+            if (AutoHideBars && SelectedDevice != null && SelectedDevice.IsAuthorized)
+            {
+                _ = _adbService.SetImmersiveFullDisplayAsync(SelectedDevice.Serial, true, CustomAdbPath);
+            }
 
             var (success, msg) = _scrcpyService.Start(config);
             if (success)
@@ -685,6 +744,40 @@ namespace PhoneProjection.ViewModels
                 }
                 _ = RefreshDevicesAsync();
             });
+        }
+
+        private void ExportDiagnostics()
+        {
+            double fps = 0.0;
+            if (double.TryParse(ReportedFpsText.Replace(" FPS (Reported)", "").Trim(), out double parsedFps))
+            {
+                fps = parsedFps;
+            }
+
+            string report = DiagnosticExportService.GenerateReport(
+                SelectedDevice,
+                SelectedPreset,
+                SelectedFps,
+                fps,
+                IsMirroringActive,
+                ResolvedScrcpyPath,
+                ResolvedAdbPath,
+                LogOutput
+            );
+
+            var (success, filePath, msg) = DiagnosticExportService.SaveReportToFile(report);
+            if (success)
+            {
+                StatusText = "Diagnostic report exported successfully.";
+                StatusColor = "#10B981";
+                AppendLog($"[Diagnostics] {msg}");
+            }
+            else
+            {
+                StatusText = "Failed to export diagnostic report.";
+                StatusColor = "#EF4444";
+                AppendLog($"[Diagnostics Error] {msg}");
+            }
         }
 
         private void OnFpsReported(double fps)

@@ -155,5 +155,58 @@ namespace PhoneProjection.Tests
             Assert.NotNull(adb);
             Assert.True(File.Exists(adb));
         }
+
+        [Fact]
+        public void BuildArgumentList_AlwaysOnTop_ConstructsCorrectFlag()
+        {
+            var config = new ScrcpyLaunchConfig
+            {
+                DeviceSerial = "QV716QHQ1L",
+                AlwaysOnTop = true,
+                Borderless = true
+            };
+
+            var args = ScrcpyProcessService.BuildArgumentList(config);
+            Assert.Contains("--always-on-top", args);
+            Assert.Contains("--window-borderless", args);
+        }
+
+        [Fact]
+        public void QualityPreset_AllPresets_IncludeVideoAndLowBandwidth()
+        {
+            Assert.Contains(Presets.All, p => p.Name == "Video Playback" && p.MaxSize == 1600 && p.BitrateMbps == 10);
+            Assert.Contains(Presets.All, p => p.Name == "Low Bandwidth" && p.MaxSize == 1024 && p.BitrateMbps == 3);
+            Assert.Contains(Presets.All, p => p.Name == "Balanced" && p.MaxSize == 1600 && p.BitrateMbps == 8);
+            Assert.Contains(Presets.All, p => p.Name == "Smooth" && p.MaxSize == 1280 && p.BitrateMbps == 6);
+        }
+
+        [Fact]
+        public void DiagnosticExportService_GeneratesSanitizedReport()
+        {
+            var dev = new DeviceInfo
+            {
+                Serial = "TEST_SERIAL_123",
+                Model = "SOV39",
+                State = "device"
+            };
+
+            string report = DiagnosticExportService.GenerateReport(
+                dev,
+                Presets.Balanced,
+                60,
+                58.4,
+                true,
+                @"C:\tools\scrcpy.exe",
+                @"C:\tools\adb.exe",
+                "Log line 1\nLog line 2"
+            );
+
+            Assert.Contains("PHONEPROJECTION DIAGNOSTIC REPORT", report);
+            Assert.Contains("TEST_SERIAL_123", report);
+            Assert.Contains("SOV39", report);
+            Assert.Contains("Balanced", report);
+            Assert.Contains("58.4 FPS", report);
+            Assert.Contains("Log line 1", report);
+        }
     }
 }

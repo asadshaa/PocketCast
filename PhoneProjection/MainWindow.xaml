@@ -194,10 +194,12 @@
                                     <Separator Background="{StaticResource BorderBrush}" Margin="0,6,0,12"/>
 
                                     <!-- Window Display Toggles -->
-                                    <WrapPanel>
-                                        <CheckBox IsChecked="{Binding IsFullscreen}" Content="Fullscreen Mode (--fullscreen)" Margin="0,0,24,6"/>
-                                        <CheckBox IsChecked="{Binding IsBorderless}" Content="Borderless Window (--window-borderless)" Margin="0,0,24,6"/>
-                                        <CheckBox IsChecked="{Binding StayAwake}" Content="Keep Phone Awake (--stay-awake)" Margin="0,0,24,6"/>
+                                    <WrapPanel Margin="0,0,0,4">
+                                        <CheckBox IsChecked="{Binding IsFullscreen}" Content="Fullscreen Mode (--fullscreen)" Margin="0,0,20,6"/>
+                                        <CheckBox IsChecked="{Binding IsBorderless}" Content="Borderless Window (--window-borderless)" Margin="0,0,20,6"/>
+                                        <CheckBox IsChecked="{Binding AlwaysOnTop}" Content="Always on Top (--always-on-top)" Margin="0,0,20,6"/>
+                                        <CheckBox IsChecked="{Binding AutoHideBars}" Content="Auto-hide phone bars (Immersive clean display)" Margin="0,0,20,6"/>
+                                        <CheckBox IsChecked="{Binding StayAwake}" Content="Keep Phone Awake (--stay-awake)" Margin="0,0,20,6"/>
                                     </WrapPanel>
                                 </StackPanel>
                             </Border>
@@ -206,7 +208,7 @@
                             <Border Style="{StaticResource CardPanel}">
                                 <StackPanel>
                                     <TextBlock Text="AUDIO CONFIGURATION &amp; ANDROID 10 POLICY" FontSize="11" FontWeight="Bold" Foreground="{StaticResource SignalAccentBrush}" Margin="0,0,0,8"/>
-                                    <TextBlock Text="• Android 10 Note: Audio forwarding requires Android 11+. On Android 10, audio capture is strictly experimental and depends on individual app security policies." 
+                                    <TextBlock Text="• Android 10 Constraint: System audio forwarding requires Android 11+. For crystal-clear phone sound through laptop speakers on Android 10, use the bundled Windows 'Bluetooth Audio Receiver' app over standard Bluetooth A2DP Sink." 
                                                Foreground="{StaticResource WarningBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
 
                                     <Grid>
@@ -222,12 +224,16 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- CARD 4: Live Diagnostics Logs -->
+                            <!-- CARD 4: Live Diagnostics Logs & Export -->
                             <Border Style="{StaticResource CardPanel}">
                                 <StackPanel>
                                     <DockPanel LastChildFill="True" Margin="0,0,0,8">
-                                        <Button DockPanel.Dock="Right" Content="Clear Logs" Style="{StaticResource SecondaryButton}" 
-                                                Command="{Binding ClearLogsCommand}" Padding="8,4" FontSize="11"/>
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                            <Button Content="💾 Export Diagnostics" Style="{StaticResource SecondaryButton}" 
+                                                    Command="{Binding ExportDiagnosticsCommand}" Padding="8,4" FontSize="11" Margin="0,0,8,0"/>
+                                            <Button Content="Clear Logs" Style="{StaticResource SecondaryButton}" 
+                                                    Command="{Binding ClearLogsCommand}" Padding="8,4" FontSize="11"/>
+                                        </StackPanel>
                                         <TextBlock Text="LIVE PROCESS DIAGNOSTICS &amp; LOGS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource SecondaryTextBrush}" VerticalAlignment="Center"/>
                                     </DockPanel>
                                     <TextBox Text="{Binding LogOutput}" Background="#060A14" Foreground="{StaticResource SignalAccentBrush}" FontFamily="Consolas" 
@@ -309,6 +315,15 @@
                                     <TextBox Text="{Binding CustomAdbPath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding ResolvedAdbPath, StringFormat='Active: {0}'}" 
                                                Foreground="{StaticResource MutedTextBrush}" FontFamily="Consolas" FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource CardPanel}">
+                                <StackPanel>
+                                    <TextBlock Text="ACCESSIBILITY &amp; PERFORMANCE" FontSize="11" FontWeight="Bold" Foreground="{StaticResource SignalAccentBrush}" Margin="0,0,0,10"/>
+                                    <CheckBox IsChecked="{Binding ReducedMotion}" Content="Enable Reduced Motion (Disable dynamic background signal animations)" Margin="0,0,0,10"/>
+                                    <TextBlock Text="When enabled, ambient background particles and wave undulations are turned off to maximize CPU efficiency on lower-power laptops." 
+                                               Foreground="{StaticResource MutedTextBrush}" FontSize="11" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>
 

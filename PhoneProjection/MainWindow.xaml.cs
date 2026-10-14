@@ -29,7 +29,8 @@ namespace PhoneProjection
             if (e.PropertyName == nameof(ViewModel.IsMirroringActive) ||
                 e.PropertyName == nameof(ViewModel.SelectedDevice) ||
                 e.PropertyName == nameof(ViewModel.IsBusy) ||
-                e.PropertyName == nameof(ViewModel.StatusText))
+                e.PropertyName == nameof(ViewModel.StatusText) ||
+                e.PropertyName == nameof(ViewModel.ReducedMotion))
             {
                 Dispatcher.Invoke(UpdateBackgroundVisualState);
             }
@@ -38,6 +39,18 @@ namespace PhoneProjection
         private void UpdateBackgroundVisualState()
         {
             if (SignalBackground == null || ViewModel == null) return;
+
+            if (ViewModel.ReducedMotion)
+            {
+                SignalBackground.PauseAnimations();
+                SignalBackground.Visibility = Visibility.Hidden;
+                return;
+            }
+            else
+            {
+                SignalBackground.Visibility = Visibility.Visible;
+                SignalBackground.ResumeAnimations();
+            }
 
             if (ViewModel.IsMirroringActive)
             {

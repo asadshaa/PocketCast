@@ -13,9 +13,12 @@ namespace PhoneProjection.Models
         public int VideoBufferMs { get; set; } = 0;
         public bool IsFullscreen { get; set; } = false;
         public bool IsBorderless { get; set; } = false;
+        public bool AlwaysOnTop { get; set; } = false;
         public bool StayAwake { get; set; } = false;
-        public bool EnableAudio { get; set; } = false; // Audio policy on Android 10
-        public string AudioSource { get; set; } = "playback"; // playback, mic, output
+        public bool AutoHideBars { get; set; } = true; // Immersive full display
+        public bool ReducedMotion { get; set; } = false;
+        public bool EnableAudio { get; set; } = false;
+        public string AudioSource { get; set; } = "playback";
         public string CustomScrcpyPath { get; set; } = string.Empty;
         public string CustomAdbPath { get; set; } = string.Empty;
         public string LastWifiIp { get; set; } = string.Empty;

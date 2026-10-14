@@ -13,10 +13,11 @@ namespace PhoneProjection.Services
         public QualityPreset Preset { get; set; } = Presets.Balanced;
         public int CustomMaxSize { get; set; } = 1600;
         public int CustomBitrateMbps { get; set; } = 8;
-        public int FpsCap { get; set; } = 60; // 30, 60, or 0 (uncapped)
+        public int FpsCap { get; set; } = 60;
         public int VideoBufferMs { get; set; } = 0;
         public bool Fullscreen { get; set; } = false;
         public bool Borderless { get; set; } = false;
+        public bool AlwaysOnTop { get; set; } = false;
         public bool StayAwake { get; set; } = false;
         public bool EnableAudio { get; set; } = false;
         public string AudioSource { get; set; } = "playback";
@@ -32,7 +33,7 @@ namespace PhoneProjection.Services
 
         public event Action<string>? LogReceived;
         public event Action<double>? FpsReported;
-        public event Action<int>? ProcessExited; // exit code
+        public event Action<int>? ProcessExited;
 
         public bool IsRunning
         {
@@ -58,10 +59,10 @@ namespace PhoneProjection.Services
                 "--print-fps"
             };
 
-            // Video buffer
+            // Video buffer delay
             args.Add($"--video-buffer={Math.Max(0, config.VideoBufferMs)}");
 
-            // Resolution & Bitrate
+            // Resolution & Bitrate from preset or custom values
             int maxSize = config.Preset.IsCustom ? config.CustomMaxSize : config.Preset.MaxSize;
             int bitrate = config.Preset.IsCustom ? config.CustomBitrateMbps : config.Preset.BitrateMbps;
 
@@ -81,7 +82,7 @@ namespace PhoneProjection.Services
                 args.Add($"--max-fps={config.FpsCap}");
             }
 
-            // Display Flags
+            // Window / Display Modes
             if (config.Fullscreen)
             {
                 args.Add("--fullscreen");
@@ -92,12 +93,17 @@ namespace PhoneProjection.Services
                 args.Add("--window-borderless");
             }
 
+            if (config.AlwaysOnTop)
+            {
+                args.Add("--always-on-top");
+            }
+
             if (config.StayAwake)
             {
                 args.Add("--stay-awake");
             }
 
-            // Audio configuration: Explicitly disabled by default for Android 10 compatibility
+            // Audio configuration
             if (!config.EnableAudio)
             {
                 args.Add("--no-audio");
@@ -129,7 +135,7 @@ namespace PhoneProjection.Services
                 string? scrcpyPath = _discovery.FindScrcpyPath(config.CustomScrcpyPath);
                 if (string.IsNullOrEmpty(scrcpyPath) || !File.Exists(scrcpyPath))
                 {
-                    return (false, "scrcpy.exe not found! Please install scrcpy or configure its path.");
+                    return (false, "scrcpy.exe not found! Please verify installation or configure its path.");
                 }
 
                 string? adbPath = _discovery.FindAdbPath(config.CustomAdbPath);
@@ -212,7 +218,7 @@ namespace PhoneProjection.Services
         {
             LogReceived?.Invoke(line);
 
-            // Parse FPS output if present, e.g. "1920x1080: 24.5 fps" or "fps=25.2" or "25.0 fps"
+            // Match e.g. "INFO: 52 fps" or "1920x1080: 24.5 fps"
             var match = Regex.Match(line, @"(\d+(\.\d+)?)\s*fps", RegexOptions.IgnoreCase);
             if (match.Success && double.TryParse(match.Groups[1].Value, out double fps))
             {
